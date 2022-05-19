@@ -5,7 +5,8 @@
 ### Exercises
 
 1. Find the variant of the <code>ls</code> command (i.e. argument(s) to be used) to list contents of a folder including its hidden files, the variant of <code>cp</code> to copy folder and the command to rename a file.
-Ans. <code>ls -a</code> is the command to list contents of the folder including its hidden files. Variant of <code> cp </code> to copy folder is <code> cp -R DistinationFolderAdd SourceFolderAdd </code> and the command to rename a file is <code> mv file1 file2 </code>
+
+Ans. <code>ls -a</code> is the command to list contents of the folder including its hidden files. Variant of <code>cp</code> to copy folder is <code>cp -R DistinationFolderAdd SourceFolderAdd</code> and the command to rename a file is <code>mv file1 file2</code>
 
 2. In this question, we will understand the hardware configuration of your working machine using the <code>/proc</code> filesystem.
 
