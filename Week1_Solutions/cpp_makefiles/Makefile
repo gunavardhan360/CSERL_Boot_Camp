@@ -1,5 +1,4 @@
-VPATH = SRC INCLUDE 
-IDIR=../include
+IDIR=make_exercise
 CC=g++
 CFLAGS=-I$(IDIR)
 
@@ -20,7 +19,7 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 main: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-# .PHONY: clean
+.PHONY: clean
 
-# clean:
-# 	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+clean:
+	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
