@@ -1,0 +1,62 @@
++r
+Starting program: /home/guna/Desktop/CSERL/CSERL_Boot_Camp/Week1_Solutions/Debugging_with_GDB/a.out 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Inferior 1 (process 24939) exited normally]
++l
+1	#include<iostream>
+2	using namespace std;
+3	
+4	int main(int argc, char* argv[]) {
+5	
+6	  int n = 10;
+7	
+8	  int second_last = 1;
+9	  int last = 1;
+10	
++b 14
+Breakpoint 1 at 0x555555555222: file fibbonaci.cpp, line 14.
++r
+Starting program: /home/guna/Desktop/CSERL/CSERL_Boot_Camp/Week1_Solutions/Debugging_with_GDB/a.out 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, main (argc=1, argv=0x7fffffffdf68) at fibbonaci.cpp:14
+14	    int next = second_last + last;
++p next
+$1 = 32767
++step
+15	    cout << next << endl;
++p next
+$2 = 2
++p second_last
+$3 = 1
++step
+16	    last = next;
++step
+17	    second_last = last;
++p next
+$4 = 2
++p second_last
+$5 = 1
++step
+13	  for(int i=1; i<=10; i++) {
++p second_last
+$6 = 2
++step
+
+Breakpoint 1, main (argc=1, argv=0x7fffffffdf68) at fibbonaci.cpp:14
+14	    int next = second_last + last;
++step
+15	    cout << next << endl;
++step
+16	    last = next;
++step
+17	    second_last = last;
++step
+13	  for(int i=1; i<=10; i++) {
++p last
+$7 = 4
++p second_last
+$8 = 4
++q

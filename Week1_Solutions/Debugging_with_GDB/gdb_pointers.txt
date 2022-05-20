@@ -1,0 +1,58 @@
++r
+Starting program: /home/guna/Desktop/CSERL/CSERL_Boot_Camp/Week1_Solutions/Debugging_with_GDB/a.out 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Program received signal SIGSEGV, Segmentation fault.
+0x000055555555523e in main (argc=1, argv=0x7fffffffdf68) at pointers.cpp:13
+13	  cout << *p << endl;
++l
+8	  int *q = NULL;
+9	
+10	  cout << *p << endl;
+11	
+12	  p = q;
+13	  cout << *p << endl;
+14	
+15	  p = &b;
+16	  cout << *p << endl;
+17	
++b 9
+Breakpoint 1 at 0x555555555209: file pointers.cpp, line 10.
++p a
+$1 = 45
++p p
+$2 = (int *) 0x0
++p *p
+Cannot access memory at address 0x0
++step
+
+Program terminated with signal SIGSEGV, Segmentation fault.
+The program no longer exists.
++run
+Starting program: /home/guna/Desktop/CSERL/CSERL_Boot_Camp/Week1_Solutions/Debugging_with_GDB/a.out 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, main (argc=1, argv=0x7fffffffdf68) at pointers.cpp:10
+10	  cout << *p << endl;
++p p
+$3 = (int *) 0x7fffffffde30
++p *p
+$4 = 45
++step
+12	  p = q;
++p *p
+$5 = 45
++step
+13	  cout << *p << endl;
++p *p
+Cannot access memory at address 0x0
++p p
+$6 = (int *) 0x0
++step
+
+Program received signal SIGSEGV, Segmentation fault.
+0x000055555555523e in main (argc=1, argv=0x7fffffffdf68) at pointers.cpp:13
+13	  cout << *p << endl;
++exit
