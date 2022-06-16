@@ -1,0 +1,4 @@
+# Executables
+load_gen
+server
+*.log

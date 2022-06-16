@@ -99,11 +99,42 @@ void sys_init_counter(void){
   counter = 0;
 }
 
-void sys_set_cnt(void){
-  int val; argint(0, &val);
-  counter = val;
+void sys_update_cnt(void){
+  counter = counter + 1;
 }
 
 int sys_display_count(void){
   return counter;
+}
+
+/* New system calls for the global counter 1
+*/
+int counter_1;
+
+void sys_init_counter_1(void){
+  counter_1 = 0;
+}
+
+void sys_update_cnt_1(void){
+  counter_1 = counter_1 + 1;
+}
+
+int sys_display_count_1(void){
+  return counter_1;
+}
+
+/* New system calls for the global counter 2
+*/
+int counter_2;
+
+void sys_init_counter_2(void){
+  counter_2 = 0;
+}
+
+void sys_update_cnt_2(void){
+  counter_2 = counter_2 + 1;
+}
+
+int sys_display_count_2(void){
+  return counter_2;
 }
