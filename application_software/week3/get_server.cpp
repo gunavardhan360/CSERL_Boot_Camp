@@ -19,28 +19,28 @@ void *start_function(void *arg) {
   int newsockfd = *((int *) arg);
   int n;
   string temp;
-  char buffer[256];
+  char buffer[1024];
   char escape[8] = "EXIT\n";
 
   while (true)
   {
     /* read message from client */
     
-    bzero(buffer, 256);
-    n = read(newsockfd, buffer, 255);
+    bzero(buffer, 1024);
+    n = read(newsockfd, buffer, 1023);
 
 
     if (strcmp(buffer, escape) == 0 | strcmp(buffer, "") == 0) break;
     
     if (n < 0)
       error("ERROR reading from socket");
-    printf("Here is the HTTP Request: %s", buffer);
+    printf("Here is the HTTP Request:\n%s", buffer);
 
     /* send reply to client */
     string FromClient(buffer);
     HTTP_Response FromServer = *handle_request(FromClient);
     temp = FromServer.get_string();
-    char result[2047];
+    char result[1023];
     strcpy(result, temp.c_str());
 
     n = write(newsockfd, result, strlen(result));
@@ -83,23 +83,27 @@ int main(int argc, char *argv[]) {
   if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     error("ERROR on binding");
 
-  /* listen for incoming connection requests */
+  cout << ("kool1");
+  while(true){
+    /* listen for incoming connection requests */
 
-  listen(sockfd, 5);
-  clilen = sizeof(cli_addr);
+    cout << ("kool1");
+    listen(sockfd, 5);
+    clilen = sizeof(cli_addr);
+    cout << ("kool10");
 
-  /* accept a new request, create a newsockfd */
+    /* accept a new request, create a newsockfd */
 
-  newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
-  if (newsockfd < 0)
-    error("ERROR on accept");
+    newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+    if (newsockfd < 0)
+      error("ERROR on accept");
 
-  if ( pthread_create(&thread_id, NULL, start_function, (void*)&newsockfd) < 0 )
-  {
-      perror("could not create thread");
-      return 1;
+    if ( pthread_create(&thread_id, NULL, start_function, (void*)&newsockfd) < 0 )
+    {
+        perror("could not create thread");
+        return 1;
+    }
   }
-
   pthread_join(thread_id, NULL);
 
   return 0;

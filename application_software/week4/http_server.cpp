@@ -19,6 +19,13 @@ string readFileIntoString(const string& path) {
     return ss.str();
 }
 
+long long int fib(int n)
+{
+    if (n <= 1)
+        return n;
+    return fib(n-1) + fib(n-2);
+}
+
 vector<string> split(const string &s, char delim) {
   vector<string> elems;
 
@@ -67,6 +74,7 @@ HTTP_Response *handle_request(string req) {
     response->status_code = "200";
     response->status_text = "OK";
     response->content_type = "text/html";
+    cout << url << endl;
 
     string body;
 
@@ -89,6 +97,23 @@ HTTP_Response *handle_request(string req) {
     /*
     TODO : set the remaining fields of response appropriately
     */
+    response->content_length = to_string((response->body).length());
+  }
+  else if( url.find('?') != string::npos ){
+    response->status_code = "200";
+    response->status_text = "OK";
+    response->content_type = "text/html";
+    vector<string> words = split(request->url, '?');
+    string body;
+    body = "<!DOCTYPE html>\n";
+    cout << words[0] << url << endl;
+    if (words[0] == "/hello" or words[0] == "hello")
+      body = body + "<html lang=\"en\">\n<body> \n<h2> Hello " + words[1] + "!</h2>\n</body>\n</html>"; 
+    else if(words[0] == "/fib" or words[0] == "fib"){
+      body = body + "<html lang=\"en\"> <h2> The " + words[1] + " fibonacci number is " + to_string(fib(stoi(words[1]))) + "</h2> </html>";
+    }
+    
+    response->body = body;
     response->content_length = to_string((response->body).length());
   }
 
