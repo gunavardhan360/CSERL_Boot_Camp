@@ -1,10 +1,11 @@
 /* run using ./server <port> */
+#include "http_server.hh"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <cstring>
 #include <netinet/in.h>
 
 #include <pthread.h>
@@ -14,12 +15,48 @@ void error(char *msg) {
   exit(1);
 }
 
+void *start_function(void *arg) {
+  int newsockfd = *((int *) arg);
+  int n;
+  string temp;
+  char buffer[256];
+  char escape[8] = "EXIT\n";
+
+  while (true)
+  {
+    /* read message from client */
+    
+    bzero(buffer, 256);
+    n = read(newsockfd, buffer, 255);
+
+
+    if (strcmp(buffer, escape) == 0 | strcmp(buffer, "") == 0) break;
+    
+    if (n < 0)
+      error("ERROR reading from socket");
+    printf("Here is the HTTP Request: %s", buffer);
+
+    /* send reply to client */
+    string FromClient(buffer);
+    HTTP_Response FromServer = *handle_request(FromClient);
+    temp = FromServer.get_string();
+    char result[2047];
+    strcpy(result, temp.c_str());
+
+    n = write(newsockfd, result, strlen(result));
+    if (n < 0)
+      error("ERROR writing to socket");
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[]) {
   int sockfd, newsockfd, portno;
   socklen_t clilen;
-  char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
   int n;
+  pthread_t thread_id;
+
 
   if (argc < 2) {
     fprintf(stderr, "ERROR, no port provided\n");
@@ -57,19 +94,13 @@ int main(int argc, char *argv[]) {
   if (newsockfd < 0)
     error("ERROR on accept");
 
-  /* read message from client */
+  if ( pthread_create(&thread_id, NULL, start_function, (void*)&newsockfd) < 0 )
+  {
+      perror("could not create thread");
+      return 1;
+  }
 
-  bzero(buffer, 256);
-  n = read(newsockfd, buffer, 255);
-  if (n < 0)
-    error("ERROR reading from socket");
-  printf("Here is the message: %s", buffer);
-
-  /* send reply to client */
-
-  n = write(newsockfd, "I got your message", 18);
-  if (n < 0)
-    error("ERROR writing to socket");
+  pthread_join(thread_id, NULL);
 
   return 0;
 }
