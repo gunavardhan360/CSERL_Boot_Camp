@@ -1,9 +1,10 @@
 #include "http_server.hh"
+#include "html_parser.hh"
 
 #include <vector>
 
 #include <sys/stat.h>
-
+#include <ctime>
 #include <fstream>
 #include <sstream>
 
@@ -19,36 +20,11 @@ string readFileIntoString(const string& path) {
     return ss.str();
 }
 
-long long int fib(int n)
-{
-    if (n <= 1)
-        return n;
-    return fib(n-1) + fib(n-2);
-}
-
-vector<string> split(const string &s, char delim) {
-  vector<string> elems;
-
-  stringstream ss(s);
-  string item;
-
-  while (getline(ss, item, delim)) {
-    if (!item.empty())
-      elems.push_back(item);
-  }
-
-  return elems;
-}
-
 HTTP_Request::HTTP_Request(string request) {
   vector<string> lines = split(request, '\n');
   vector<string> first_line = split(lines[0], ' ');
 
   this->HTTP_version = "1.0"; // We'll be using 1.0 irrespective of the request
-
-  /*
-   TODO : extract the request method and URL from first_line here
-  */
   this->method = first_line[0];
 
   if (this->method != "GET") {
@@ -90,13 +66,7 @@ HTTP_Response *handle_request(string req) {
         url = url + "/index.html";
     }
 
-    /*
-    TODO : open the file and read its contents
-    */
     response->body = readFileIntoString(url);
-    /*
-    TODO : set the remaining fields of response appropriately
-    */
     response->content_length = to_string((response->body).length());
   }
   else if( url.find('?') != string::npos ){
@@ -107,10 +77,13 @@ HTTP_Response *handle_request(string req) {
     string body;
     body = "<!DOCTYPE html>\n";
     cout << words[0] << url << endl;
-    if (words[0] == "/hello" or words[0] == "hello")
-      body = body + "<html lang=\"en\">\n<body> \n<h2> Hello " + words[1] + "!</h2>\n</body>\n</html>"; 
+    if (words[0] == "/hello" or words[0] == "hello"){
+      body = body + "<html lang=\"en\">\n<body> \n<h2> Hello {{name}} !</h2>\n</body>\n</html>"; 
+      body = nameparser(body, words[1]);
+    }
     else if(words[0] == "/fib" or words[0] == "fib"){
-      body = body + "<html lang=\"en\"> <h2> The " + words[1] + " fibonacci number is " + to_string(fib(stoi(words[1]))) + "</h2> </html>";
+      body = body + "<html lang=\"en\"> <h2> The {{n}} fibonacci number is {{fib}} </h2> </html>";
+      body = fibparser(body, stoi(words[1]));
     }
     
     response->body = body;
@@ -120,9 +93,6 @@ HTTP_Response *handle_request(string req) {
   else {
     response->status_code = "404";
     response->status_text = "Not Found";
-    /*
-    TODO : set the remaining fields of response appropriately
-    */
   }
 
   delete request;
@@ -131,11 +101,11 @@ HTTP_Response *handle_request(string req) {
 }
 
 string HTTP_Response::get_string() {
-  /*
-  TODO : implement this function
-  */
+  time_t now = time(0);
+  char* dt = ctime(&now);
   string res;
-  res = "HTTP/" + this->HTTP_version + " " + this->status_code + " " + this->status_text +"\n";
+  res = "HTTP/" + this->HTTP_version + " " + this->status_code + " " + this->status_text +"\nDate: ";
+  res.append(dt);
   res = res + "Content-Type: " + this->content_type + " \n";
   res = res + "Content-Length: " + this->content_length + "\n\n";
   res = res + this->body;
