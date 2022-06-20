@@ -5,7 +5,7 @@ Valgrind is a memory mismanagement detector. It shows you memory leaks, dealloca
 ### Usage:
 
 ```
-valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all --track-origins=yes --verbose <executable>
+valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all --track-origins=yes --verbose --log-file=valgrind-out.txt ./server 3000
 ```
 
 ### Useful links to learn:
