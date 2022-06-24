@@ -10,7 +10,7 @@
 #include <queue>
 #include <pthread.h>
 
-#define N 32
+#define N 512
 
 int no_clients = 0;
 pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
@@ -25,7 +25,7 @@ void error(char *msg) {
 void *start_function(void *arg) {
   int n;
   string temp;
-  char buffer[1024];
+  char buffer[1024], responsebuffer[1024];
   char escape[8] = "EXIT\n";
 
   while (true)
@@ -33,11 +33,15 @@ void *start_function(void *arg) {
     pthread_mutex_lock(&m);
     while (no_clients == 0)
       pthread_cond_wait(&c, &m);
+    if (no_clients == -1){
+      pthread_mutex_unlock(&m);
+      break;
+    }
     int newsockfd = (*((queue<int> *) arg)).front();
     (*((queue<int> *) arg)).pop();
     no_clients -= 1;
     pthread_cond_signal(&c_FULL);
-    cout << "thread dealing " << newsockfd << " " << no_clients << endl;
+    // cout << "thread dealing " << newsockfd << " " << no_clients << endl;
     pthread_mutex_unlock(&m);
 
     while (true)
@@ -47,21 +51,21 @@ void *start_function(void *arg) {
       bzero(buffer, 1024);
       n = read(newsockfd, buffer, 1023);
 
-
       if (strcmp(buffer, escape) == 0 | strcmp(buffer, "") == 0) break;
-      
       if (n < 0)
         error("ERROR reading from socket");
-      printf("Here is the HTTP Request:\n%s", buffer);
+      // printf("\nHere is the HTTP Request: %s", buffer);
 
       /* send reply to client */
       string FromClient(buffer);
-      HTTP_Response FromServer = *handle_request(FromClient);
-      temp = FromServer.get_string();
-      char result[1023];
-      strcpy(result, temp.c_str());
+      HTTP_Response *FromServer = handle_request(FromClient);
+      temp = FromServer->get_string();
+      delete FromServer;
 
-      n = write(newsockfd, result, strlen(result));
+      strcpy(responsebuffer, temp.c_str());
+      // cout << responsebuffer << endl;
+
+      n = write(newsockfd, responsebuffer, strlen(responsebuffer));
       if (n < 0)
         error("ERROR writing to socket");
     }
@@ -124,15 +128,26 @@ int main(int argc, char *argv[]) {
       error("ERROR on accept");
 
     pthread_mutex_lock(&m);
-    while (no_clients == N-1)
+    while (no_clients == N)
       pthread_cond_wait(&c_FULL, &m);
     no_clients += 1;
     client_newsockfd.push(newsockfd);
-    cout << "added to queue " << newsockfd << " " << no_clients << endl;
+    // cout << "added to queue " << newsockfd << " " << no_clients << endl;
     pthread_cond_signal(&c); 
     pthread_mutex_unlock(&m);
   }
-  pthread_exit(NULL);
 
+  while(no_clients > 0)
+  {
+    /* code */
+  }
+  
+  no_clients = -1;
+  cout << no_clients << endl;
+
+  for(int i = 0; i < N-1; i++) pthread_cond_signal(&c); 
+  for(int i = 0; i < N; i++) pthread_join(thread_id[i], NULL); 
+
+  pthread_exit(NULL);
   return 0;
 }

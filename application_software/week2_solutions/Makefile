@@ -1,7 +1,7 @@
 
 CC = gcc
-CLIENT_FILE = simple-client.c
-SERVER_FILE = simple-server.c
+CLIENT_FILE = echo_client.c
+SERVER_FILE = echo_server.c
 
 all: client server
 

@@ -83,14 +83,11 @@ int main(int argc, char *argv[]) {
   if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     error("ERROR on binding");
 
-  cout << ("kool1");
   while(true){
     /* listen for incoming connection requests */
 
-    cout << ("kool1");
     listen(sockfd, 5);
     clilen = sizeof(cli_addr);
-    cout << ("kool10");
 
     /* accept a new request, create a newsockfd */
 
